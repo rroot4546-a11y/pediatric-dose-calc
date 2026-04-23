@@ -192,6 +192,11 @@ private fun RegimenCard(regimen: DoseRegimen) {
                     color = MaterialTheme.colorScheme.secondary,
                 )
             }
+            Text(
+                "Reference: ${regimen.reference}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
     }
 }

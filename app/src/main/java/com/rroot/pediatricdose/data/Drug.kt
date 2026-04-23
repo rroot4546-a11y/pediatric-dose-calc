@@ -3,9 +3,15 @@ package com.rroot.pediatricdose.data
 /**
  * A weight-based paediatric dose regimen.
  *
- * The reference ranges here are conservative, widely cited paediatric
- * starting doses (BNFc / Nelson / AAP). They are NOT a substitute for a
- * formulary lookup; callers must verify against local protocols.
+ * Primary reference: BNFc (British National Formulary for Children,
+ * https://bnfc.nice.org.uk/). Where BNFc specifies age-banded rather than
+ * weight-based dosing (e.g. adrenaline, benzodiazepines, salbutamol),
+ * the age bands are documented in the [note] field and a pragmatic
+ * weight-based approximation (APLS / Resuscitation Council UK) is used
+ * for the calculator.
+ *
+ * Values are reference aids only; clinicians must verify against the live
+ * BNFc monograph and local protocols before administration.
  */
 data class DoseRegimen(
     /** What this regimen treats (e.g. "Mild-moderate pain / fever"). */
@@ -24,6 +30,12 @@ data class DoseRegimen(
     val route: String = "PO",
     /** Free-text clinical note (contraindications, renal adjustment, etc.). */
     val note: String? = null,
+    /**
+     * Primary reference citation (e.g. "BNFc" or "BNFc + Resus Council UK").
+     * Rendered on the drug detail screen so clinicians can trace each dose
+     * back to its source.
+     */
+    val reference: String = "BNFc",
 )
 
 data class Drug(

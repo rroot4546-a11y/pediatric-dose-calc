@@ -63,6 +63,11 @@ fun HomeScreen(
                     "or open the generic calculator to enter your own mg/kg.",
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Text(
+                "Built-in ranges aligned with BNFc (British National Formulary for Children).",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
 
             Spacer(Modifier.height(8.dp))
 
@@ -94,7 +99,8 @@ fun HomeScreen(
                         )
                     }
                     Text(
-                        "Always verify against an authoritative formulary before prescribing.",
+                        "Always verify each dose against the live BNFc monograph " +
+                            "(bnfc.nice.org.uk) and your local protocols before prescribing.",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     OutlinedButton(onClick = onDisclaimer) { Text("Read full disclaimer") }
