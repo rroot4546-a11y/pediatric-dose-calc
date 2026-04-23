@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Pediatric Dose</string>
+    <string name="disclaimer_title">Medical disclaimer</string>
+    <string name="disclaimer_body">This app is a reference tool intended for use by trained healthcare professionals. Dose calculations must be independently verified against an authoritative formulary (e.g. BNFc, Lexicomp, hospital protocols) before administration. The authors accept no liability for clinical decisions made using this app.</string>
+</resources>
