@@ -3,7 +3,6 @@ package com.rroot.pediatricdose.ui
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -31,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rroot.pediatricdose.R
 import kotlinx.coroutines.delay
 
 /**
@@ -77,19 +78,21 @@ fun PediCalcSplash(onFinished: () -> Unit) {
                 .padding(32.dp)
                 .alpha(alpha),
         ) {
-            // Logo: launcher icon in a soft white circle
+            // Logo: medical-services icon on a soft white circle.
+            // Built from Compose primitives so it works on every API level
+            // without depending on adaptive launcher icon resources.
             Box(
                 modifier = Modifier
                     .size(140.dp)
                     .shadow(20.dp, CircleShape)
-                    .background(Color.White, CircleShape)
-                    .clip(CircleShape),
+                    .background(Color.White, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Image(
-                    painter = androidx.compose.ui.res.painterResource(id = R.mipmap.ic_launcher_round),
+                Icon(
+                    imageVector = Icons.Filled.MedicalServices,
                     contentDescription = null,
-                    modifier = Modifier.size(120.dp),
+                    tint = Color(0xFF0D47A1),
+                    modifier = Modifier.size(78.dp),
                 )
             }
 
@@ -115,7 +118,7 @@ fun PediCalcSplash(onFinished: () -> Unit) {
                 modifier = Modifier
                     .background(
                         color = Color.White.copy(alpha = 0.10f),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
                     .padding(horizontal = 20.dp, vertical = 14.dp),
             ) {
