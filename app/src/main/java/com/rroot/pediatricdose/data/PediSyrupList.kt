@@ -228,17 +228,49 @@ object PediSyrupList {
         ),
         PediDrug(
             id = "syr-dexamethasone",
-            name = "Dexon (Dexamethasone)",
-            mode = WeightBasedSyrup(
-                mgPerKgPerDose = 0.15,
-                frequencyLabel = "× 4 / day",
-                maxMgPerDose = 16.0,
+            name = "Dexon (Dexamethasone) oral",
+            mode = MultiIndicationSyrup(
                 preparations = listOf(
                     Preparation("0.5 mg / 5 mL", 0.1),
+                    Preparation("2 mg / 5 mL", 0.4),
+                ),
+                indications = listOf(
+                    IndicationDose(
+                        indication = "Croup",
+                        mgPerKg = 0.15,
+                        frequency = "single dose",
+                        route = "PO",
+                        maxMgPerDose = 10.0,
+                        note = "BNFc first-line. May repeat after 12 h if needed.",
+                    ),
+                    IndicationDose(
+                        indication = "Acute asthma",
+                        mgPerKg = 0.6,
+                        frequency = "× 1 (may repeat day 2)",
+                        route = "PO",
+                        maxMgPerDose = 16.0,
+                        note = "Alternative to prednisolone.",
+                    ),
+                    IndicationDose(
+                        indication = "Antiemetic (chemotherapy)",
+                        mgPerKg = 0.15,
+                        frequency = "single dose",
+                        route = "PO",
+                        maxMgPerDose = 8.0,
+                        note = "Give before / with chemotherapy.",
+                    ),
+                    IndicationDose(
+                        indication = "Anti-inflammatory (general)",
+                        mgPerKg = 0.075,
+                        frequency = "q6h",
+                        route = "PO",
+                        maxMgPerDose = 4.0,
+                        note = "0.08–0.3 mg/kg/day in 4 divided doses.",
+                    ),
                 ),
             ),
-            notes = "Croup: 0.15 mg/kg single dose (0.6 mg/kg if severe, max 16 mg). Asthma exacerbation: 0.6 mg/kg × 1–2 days.",
-            reference = "BNFc 2024 / UpToDate (croup)",
+            notes = "Tap row to see every indication. Confirm against BNFc / UpToDate before prescribing.",
+            reference = "BNFc 2024 / UpToDate (dexamethasone)",
             accent = Accent.Cyan,
         ),
         PediDrug(

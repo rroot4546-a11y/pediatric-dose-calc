@@ -187,6 +187,9 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                 is DoseMode.AgeBanded -> {
                     AgeBandedRows(mode)
                 }
+                is DoseMode.MultiIndicationSyrup -> {
+                    MultiIndicationSyrupRows(mode, weightKg)
+                }
                 else -> {
                     val r = QuickDose.compute(drug, weightKg)
                     Text(text = "${r.primary}  ${r.frequency}", fontSize = 14.sp, color = palette.value)
@@ -204,6 +207,73 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                     fontSize = 11.sp,
                     color = palette.mutedText,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MultiIndicationSyrupRows(mode: DoseMode.MultiIndicationSyrup, weightKg: Double) {
+    val palette = AppColors
+    val rows = QuickDose.computeSyrupIndications(mode, weightKg)
+    Spacer(Modifier.height(4.dp))
+    Surface(
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+        shape = RoundedCornerShape(4.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            for ((idx, r) in rows.withIndex()) {
+                if (idx > 0) {
+                    Spacer(Modifier.height(6.dp))
+                    HorizontalDivider(color = palette.border.copy(alpha = 0.4f))
+                    Spacer(Modifier.height(6.dp))
+                }
+                Text(
+                    text = r.indication,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = palette.label,
+                )
+                Text(
+                    text = "${r.mgPerKg} mg/kg  ${r.frequency}  ${r.route}".trim(),
+                    fontSize = 11.sp,
+                    color = palette.label.copy(alpha = 0.85f),
+                )
+                for (p in r.perPreparation) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = p.prepLabel,
+                            modifier = Modifier.weight(1f),
+                            fontSize = 12.sp,
+                            color = palette.label,
+                        )
+                        Text(
+                            text = p.cc,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (r.capped) palette.warn else palette.value,
+                        )
+                        Text(
+                            text = " cc",
+                            fontSize = 11.sp,
+                            color = palette.label,
+                        )
+                    }
+                }
+                Text(
+                    text = if (r.capped) "${r.mgPerDose} • ${r.maxLabel} ⚠ capped"
+                        else "${r.mgPerDose}${if (r.maxLabel.isNotBlank()) " • ${r.maxLabel}" else ""}",
+                    fontSize = 10.sp,
+                    color = if (r.capped) palette.warn else palette.mutedText,
+                )
+                if (r.note.isNotBlank()) {
+                    Text(
+                        text = r.note,
+                        fontSize = 10.sp,
+                        color = palette.mutedText,
+                    )
+                }
             }
         }
     }

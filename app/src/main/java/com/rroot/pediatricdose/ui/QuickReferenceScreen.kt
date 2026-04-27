@@ -24,9 +24,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rroot.pediatricdose.data.Accent
+import com.rroot.pediatricdose.data.DoseMode
 import com.rroot.pediatricdose.data.InjectionDetail
 import com.rroot.pediatricdose.data.PediDrug
 import com.rroot.pediatricdose.data.PediDrugList
+import com.rroot.pediatricdose.domain.IndicationResult
 import com.rroot.pediatricdose.domain.ComputedDose
 import com.rroot.pediatricdose.domain.QuickDose
 import com.rroot.pediatricdose.ui.theme.AppColors
@@ -219,6 +221,13 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                         modifier = Modifier.padding(start = 12.dp, top = 2.dp),
                     )
                 }
+                // Multi-indication injectable: render the per-indication table.
+                (drug.mode as? DoseMode.MultiIndicationMgPerKg)?.let { mode ->
+                    IndicationsTable(
+                        rows = QuickDose.computeIndications(mode, weightKg),
+                        showCc = true,
+                    )
+                }
                 drug.injection?.let { inj ->
                     InjectionDetailBlock(inj)
                 }
@@ -299,5 +308,93 @@ private fun DetailRow(label: String, value: String) {
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+@Composable
+internal fun IndicationsTable(rows: List<IndicationResult>, showCc: Boolean) {
+    val palette = AppColors
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .background(palette.cardBg, RoundedCornerShape(6.dp))
+            .border(1.dp, palette.border, RoundedCornerShape(6.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = "Dose by indication",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = palette.label,
+            modifier = Modifier.padding(bottom = 4.dp),
+        )
+        for ((idx, r) in rows.withIndex()) {
+            if (idx > 0) {
+                Spacer(Modifier.height(6.dp))
+                androidx.compose.material3.HorizontalDivider(
+                    color = palette.border.copy(alpha = 0.4f),
+                )
+                Spacer(Modifier.height(6.dp))
+            }
+            Text(
+                text = r.indication,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = palette.label,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "${formatMgPerKg(r.mgPerKg)} mg/kg",
+                    fontSize = 11.sp,
+                    color = palette.secondaryText,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = if (showCc) "${r.cc}  •  ${r.mgPerDose}" else r.mgPerDose,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (r.capped) palette.warn else palette.value,
+                )
+            }
+            Row {
+                Text(
+                    text = r.frequency,
+                    fontSize = 11.sp,
+                    color = palette.secondaryText,
+                    modifier = Modifier.weight(1f),
+                )
+                if (r.route.isNotBlank()) {
+                    Text(
+                        text = r.route,
+                        fontSize = 11.sp,
+                        color = palette.secondaryText,
+                    )
+                }
+            }
+            if (r.maxLabel.isNotBlank()) {
+                Text(
+                    text = if (r.capped) "${r.maxLabel}  ⚠ capped" else r.maxLabel,
+                    fontSize = 10.sp,
+                    color = if (r.capped) palette.warn else palette.mutedText,
+                )
+            }
+            if (r.note.isNotBlank()) {
+                Text(
+                    text = r.note,
+                    fontSize = 10.sp,
+                    color = palette.mutedText,
+                )
+            }
+        }
+    }
+}
+
+private fun formatMgPerKg(value: Double): String {
+    return if (value == value.toLong().toDouble()) {
+        value.toLong().toString()
+    } else {
+        // strip trailing zeros up to 3 decimal places
+        "%.3f".format(value).trimEnd('0').trimEnd('.')
     }
 }

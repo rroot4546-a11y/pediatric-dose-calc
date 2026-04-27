@@ -2,6 +2,7 @@ package com.rroot.pediatricdose.domain
 
 import com.rroot.pediatricdose.data.AgeBand
 import com.rroot.pediatricdose.data.DoseMode
+import com.rroot.pediatricdose.data.IndicationDose
 import com.rroot.pediatricdose.data.PediDrug
 import com.rroot.pediatricdose.data.Preparation
 import kotlin.math.max
@@ -27,6 +28,32 @@ data class SyrupRow(
 data class PrepResult(
     val prepLabel: String,    // "120 mg/5 mL"
     val cc: String,           // "5" or "—"
+)
+
+/** Result of computing one indication of a multi-indication injection. */
+data class IndicationResult(
+    val indication: String,
+    val mgPerKg: Double,
+    val mgPerDose: String,    // "9 mg" (post-cap)
+    val cc: String,           // "2.25 cc" at the configured concentration
+    val frequency: String,
+    val route: String,
+    val maxLabel: String,     // "max 16 mg" (or empty)
+    val note: String,
+    val capped: Boolean,
+)
+
+/** One indication × one syrup preparation row. */
+data class IndicationSyrupResult(
+    val indication: String,
+    val mgPerKg: Double,
+    val mgPerDose: String,
+    val perPreparation: List<PrepResult>,
+    val frequency: String,
+    val route: String,
+    val maxLabel: String,
+    val note: String,
+    val capped: Boolean,
 )
 
 object QuickDose {
@@ -124,7 +151,67 @@ object QuickDose {
                 primary = "(see age bands)",
                 frequency = "",
             )
+            is DoseMode.MultiIndicationMgPerKg -> ComputedDose(
+                primary = "${mode.indications.size} indications",
+                frequency = "tap to expand",
+            )
+            is DoseMode.MultiIndicationSyrup -> ComputedDose(
+                primary = "${mode.indications.size} indications",
+                frequency = "tap to expand",
+            )
         }
+    }
+
+    /** Compute every indication of a multi-indication injection. */
+    fun computeIndications(
+        mode: DoseMode.MultiIndicationMgPerKg,
+        weightKg: Double,
+    ): List<IndicationResult> = mode.indications.map { ind ->
+        val (mg, capped) = applyCap(ind, weightKg)
+        IndicationResult(
+            indication = ind.indication,
+            mgPerKg = ind.mgPerKg,
+            mgPerDose = if (mg <= 0.0) "—" else "${formatMg(mg)} mg",
+            cc = if (mg <= 0.0) "—" else "${formatCc(mg / mode.mgPerCc)} cc",
+            frequency = ind.frequency,
+            route = ind.route,
+            maxLabel = ind.maxMgPerDose?.let { "max ${formatMg(it)} mg" } ?: "",
+            note = ind.note,
+            capped = capped,
+        )
+    }
+
+    /** Compute every indication × every preparation of a multi-indication syrup. */
+    fun computeSyrupIndications(
+        mode: DoseMode.MultiIndicationSyrup,
+        weightKg: Double,
+    ): List<IndicationSyrupResult> = mode.indications.map { ind ->
+        val (mg, capped) = applyCap(ind, weightKg)
+        val results = mode.preparations.map { p ->
+            PrepResult(
+                prepLabel = p.label,
+                cc = if (mg <= 0.0) "—" else formatCc(mg / p.mgPerCc),
+            )
+        }
+        IndicationSyrupResult(
+            indication = ind.indication,
+            mgPerKg = ind.mgPerKg,
+            mgPerDose = if (mg <= 0.0) "—" else "${formatMg(mg)} mg",
+            perPreparation = results,
+            frequency = ind.frequency,
+            route = ind.route,
+            maxLabel = ind.maxMgPerDose?.let { "max ${formatMg(it)} mg" } ?: "",
+            note = ind.note,
+            capped = capped,
+        )
+    }
+
+    private fun applyCap(ind: IndicationDose, weightKg: Double): Pair<Double, Boolean> {
+        if (weightKg <= 0.0) return 0.0 to false
+        val raw = ind.mgPerKg * weightKg
+        val capped = ind.maxMgPerDose != null && raw > ind.maxMgPerDose
+        val mg = if (capped) ind.maxMgPerDose!! else raw
+        return mg to capped
     }
 
     /** Compute a syrup row across all stocked preparations. */

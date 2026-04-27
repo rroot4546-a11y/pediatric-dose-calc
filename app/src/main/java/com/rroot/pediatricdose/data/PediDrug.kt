@@ -150,4 +150,39 @@ sealed class DoseMode {
         val preparations: List<Preparation>,
         val bands: List<AgeBand>,
     ) : DoseMode()
+
+    /**
+     * A drug with multiple distinct clinical indications, each with its
+     * own mg/kg dose and frequency (e.g. dexamethasone: croup 0.15 mg/kg
+     * single dose, meningitis 0.15 mg/kg q6h × 4 days, asthma 0.6 mg/kg
+     * single dose, etc.). Single vial concentration [mgPerCc].
+     */
+    data class MultiIndicationMgPerKg(
+        val mgPerCc: Double,
+        val indications: List<IndicationDose>,
+    ) : DoseMode()
+
+    /**
+     * Multi-indication oral syrup: each indication × each stocked
+     * preparation produces a cc result. Same shape as
+     * [WeightBasedSyrup] but with multiple per-indication doses.
+     */
+    data class MultiIndicationSyrup(
+        val preparations: List<Preparation>,
+        val indications: List<IndicationDose>,
+    ) : DoseMode()
 }
+
+/**
+ * One labelled indication inside a [DoseMode.MultiIndicationMgPerKg] or
+ * [DoseMode.MultiIndicationSyrup]. mg/kg is the per-dose recommendation
+ * for *this* indication; [maxMgPerDose] caps it.
+ */
+data class IndicationDose(
+    val indication: String,        // "Croup", "Acute asthma", "Bacterial meningitis"
+    val mgPerKg: Double,           // 0.15 / 0.6 / etc.
+    val frequency: String,         // "single dose", "q6h × 4 days"
+    val route: String = "",        // "PO/IV/IM", "IV", "PO"
+    val maxMgPerDose: Double? = null,
+    val note: String = "",         // brief clinical caveat
+)
