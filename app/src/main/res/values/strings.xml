@@ -1,5 +1,3 @@
 <resources>
-    <string name="app_name">Pediatric Dose</string>
-    <string name="disclaimer_title">Medical disclaimer</string>
-    <string name="disclaimer_body">This app is a reference tool intended for use by trained healthcare professionals.\n\nPrimary reference: BNFc (British National Formulary for Children), https://bnfc.nice.org.uk/. Built-in dose ranges, caps and age bands have been aligned with BNFc monographs current at the time of authoring. Where BNFc uses age-banded rather than weight-based dosing (e.g. adrenaline for anaphylaxis, rectal diazepam, buccal midazolam, nebulised salbutamol), the age bands are shown in each drug\'s notes and the calculator falls back to the widely-used APLS / Resuscitation Council UK weight-based approximation.\n\nBNFc is updated frequently. Every dose produced by this app MUST be independently verified against the live BNFc monograph and against your local prescribing protocol before administration. The authors accept no liability for clinical decisions made using this app.</string>
+    <string name="app_name">PediCalc AI</string>
 </resources>
