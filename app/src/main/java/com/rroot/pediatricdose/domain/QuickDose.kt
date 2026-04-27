@@ -1,14 +1,14 @@
 package com.rroot.pediatricdose.domain
 
+import com.rroot.pediatricdose.data.AgeBand
 import com.rroot.pediatricdose.data.DoseMode
 import com.rroot.pediatricdose.data.PediDrug
+import com.rroot.pediatricdose.data.Preparation
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-/**
- * Computed dose for a single drug at a given child weight.
- */
+/** Result of computing one drug at one concentration. */
 data class ComputedDose(
     val primary: String,
     val frequency: String,
@@ -16,12 +16,27 @@ data class ComputedDose(
     val capped: Boolean = false,
 )
 
+/** Result row used by syrup screen — multiple concentrations side-by-side. */
+data class SyrupRow(
+    val perPreparation: List<PrepResult>,
+    val frequency: String,
+    val mgPerDose: String,
+    val capped: Boolean,
+)
+
+data class PrepResult(
+    val prepLabel: String,    // "120 mg/5 mL"
+    val cc: String,           // "5" or "—"
+)
+
 object QuickDose {
 
+    /**
+     * Compute the dose for an injection-style drug (single preparation,
+     * mg/kg or fluid-rate). Returns "—" when weight is non-positive.
+     */
     fun compute(drug: PediDrug, weightKg: Double): ComputedDose {
-        if (weightKg <= 0.0) {
-            return ComputedDose(primary = "—", frequency = "")
-        }
+        if (weightKg <= 0.0) return ComputedDose(primary = "—", frequency = "")
         return when (val mode = drug.mode) {
             is DoseMode.VolumeMgPerKg -> {
                 val mg = mode.mgPerKg * weightKg
@@ -62,7 +77,6 @@ object QuickDose {
                 )
             }
             is DoseMode.Infusion -> {
-                // Final concentration after recipe.
                 val totalDrugMg = mode.drugMgPerCc * mode.diluentSourceCc
                 val finalConcMgPerCc = totalDrugMg / mode.finalCc
                 val ccPerHour = (mode.mgPerKgPerHour * weightKg) / finalConcMgPerCc
@@ -95,14 +109,52 @@ object QuickDose {
                 primary = mode.text,
                 frequency = "",
             )
+            is DoseMode.WeightBasedSyrup -> {
+                // Compatibility: collapse to a single primary string showing the first preparation.
+                val row = computeSyrup(mode, weightKg)
+                val firstCc = row.perPreparation.firstOrNull()?.cc ?: "—"
+                ComputedDose(
+                    primary = "$firstCc cc",
+                    frequency = row.frequency,
+                    secondary = row.mgPerDose,
+                    capped = row.capped,
+                )
+            }
+            is DoseMode.AgeBanded -> ComputedDose(
+                primary = "(see age bands)",
+                frequency = "",
+            )
         }
+    }
+
+    /** Compute a syrup row across all stocked preparations. */
+    fun computeSyrup(mode: DoseMode.WeightBasedSyrup, weightKg: Double): SyrupRow {
+        if (weightKg <= 0.0) {
+            return SyrupRow(
+                perPreparation = mode.preparations.map { p ->
+                    PrepResult(p.label, "—")
+                },
+                frequency = mode.frequencyLabel,
+                mgPerDose = "",
+                capped = false,
+            )
+        }
+        var mg = mode.mgPerKgPerDose * weightKg
+        val capped = mode.maxMgPerDose != null && mg > mode.maxMgPerDose
+        if (capped) mg = mode.maxMgPerDose!!
+        val results = mode.preparations.map { p ->
+            PrepResult(prepLabel = p.label, cc = formatCc(mg / p.mgPerCc))
+        }
+        return SyrupRow(
+            perPreparation = results,
+            frequency = mode.frequencyLabel,
+            mgPerDose = "${formatMg(mg)} mg / dose",
+            capped = capped,
+        )
     }
 
     /**
      * Holliday-Segar daily maintenance fluid in mL.
-     *  100 mL/kg for first 10 kg
-     *  50 mL/kg for next 10 kg
-     *  20 mL/kg above 20 kg
      */
     fun hollidaySegarPerDay(weightKg: Double): Double {
         val a = min(weightKg, 10.0) * 100.0
@@ -111,7 +163,7 @@ object QuickDose {
         return a + b + c
     }
 
-    private fun formatCc(value: Double): String {
+    fun formatCc(value: Double): String {
         if (value <= 0.0) return "0"
         val rounded = (value * 100).roundToInt() / 100.0
         return if (rounded == rounded.toLong().toDouble()) {
@@ -121,7 +173,7 @@ object QuickDose {
         }
     }
 
-    private fun formatMg(value: Double): String {
+    fun formatMg(value: Double): String {
         val rounded = (value * 10).roundToInt() / 10.0
         return if (rounded == rounded.toLong().toDouble()) {
             rounded.toLong().toString()
