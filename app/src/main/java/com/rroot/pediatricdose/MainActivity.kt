@@ -22,12 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.rroot.pediatricdose.ai.SecureStore
 import com.rroot.pediatricdose.ui.AiChatScreen
 import com.rroot.pediatricdose.ui.DiagnosesScreen
+import com.rroot.pediatricdose.ui.PediCalcSplash
 import com.rroot.pediatricdose.ui.QuickReferenceScreen
 import com.rroot.pediatricdose.ui.SettingsScreen
 import com.rroot.pediatricdose.ui.SyrupScreen
@@ -45,7 +47,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             PediatricDoseTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppShell(secureStore)
+                    var showSplash by remember { mutableStateOf(true) }
+                    if (showSplash) {
+                        PediCalcSplash(onFinished = { showSplash = false })
+                    } else {
+                        AppShell(secureStore)
+                    }
                 }
             }
         }

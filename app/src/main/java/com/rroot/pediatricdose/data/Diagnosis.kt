@@ -14,7 +14,6 @@ package com.rroot.pediatricdose.data
 data class Diagnosis(
     val id: String,
     val name: String,
-    val arabicName: String,
     val category: String,
     val firstLine: List<TreatmentOption>,
     val notes: String,
@@ -44,7 +43,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-cap",
             name = "Community-acquired pneumonia (CAP)",
-            arabicName = "ذات الرئة المكتسبة من المجتمع",
             category = "Respiratory",
             firstLine = listOf(
                 TreatmentOption(
@@ -90,7 +88,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-bronchiolitis",
             name = "Bronchiolitis (RSV)",
-            arabicName = "التهاب القصيبات الفيروسي",
             category = "Respiratory",
             firstLine = listOf(
                 TreatmentOption(
@@ -122,7 +119,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-asthma-exac",
             name = "Acute asthma exacerbation",
-            arabicName = "نوبة الربو الحادة",
             category = "Respiratory",
             firstLine = listOf(
                 TreatmentOption(
@@ -160,7 +156,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-croup",
             name = "Croup (laryngotracheobronchitis)",
-            arabicName = "خناق الحنجرة (كروب)",
             category = "Respiratory",
             firstLine = listOf(
                 TreatmentOption(
@@ -192,7 +187,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-otitis",
             name = "Acute otitis media",
-            arabicName = "التهاب الأذن الوسطى الحاد",
             category = "Respiratory / ENT",
             firstLine = listOf(
                 TreatmentOption(
@@ -230,7 +224,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-pharyngitis",
             name = "Streptococcal pharyngitis / tonsillitis",
-            arabicName = "التهاب البلعوم العقدي",
             category = "Respiratory / ENT",
             firstLine = listOf(
                 TreatmentOption(
@@ -264,7 +257,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-age",
             name = "Acute gastroenteritis (AGE) with dehydration",
-            arabicName = "التهاب المعدة والأمعاء الحاد مع جفاف",
             category = "Gastrointestinal",
             firstLine = listOf(
                 TreatmentOption(
@@ -302,7 +294,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-giardia",
             name = "Giardiasis",
-            arabicName = "داء الجيارديا",
             category = "Gastrointestinal",
             firstLine = listOf(
                 TreatmentOption(
@@ -322,7 +313,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-uti",
             name = "Urinary tract infection",
-            arabicName = "التهاب المسالك البولية",
             category = "Genitourinary",
             firstLine = listOf(
                 TreatmentOption(
@@ -364,7 +354,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-febrile-seizure",
             name = "Febrile seizure",
-            arabicName = "اختلاج حروري",
             category = "Neurology",
             firstLine = listOf(
                 TreatmentOption(
@@ -397,7 +386,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-meningitis",
             name = "Bacterial meningitis (empirical)",
-            arabicName = "التهاب السحايا الجرثومي",
             category = "Neurology",
             firstLine = listOf(
                 TreatmentOption(
@@ -440,7 +428,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-skin-cellulitis",
             name = "Skin / soft-tissue infection (cellulitis, impetigo)",
-            arabicName = "التهاب النسيج تحت الجلد / القوباء",
             category = "Skin",
             firstLine = listOf(
                 TreatmentOption(
@@ -477,7 +464,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-allergic-rhinitis",
             name = "Allergic rhinitis",
-            arabicName = "حمى القش / الزكام التحسسي",
             category = "Allergy",
             firstLine = listOf(
                 TreatmentOption(
@@ -505,7 +491,6 @@ object DiagnosisList {
         Diagnosis(
             id = "dx-anaphylaxis",
             name = "Anaphylaxis",
-            arabicName = "صدمة تأقية",
             category = "Allergy / emergency",
             firstLine = listOf(
                 TreatmentOption(

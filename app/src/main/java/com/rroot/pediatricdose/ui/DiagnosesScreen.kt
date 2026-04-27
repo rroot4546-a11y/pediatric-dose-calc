@@ -76,9 +76,21 @@ private fun DiagnosisIndex(
                     OutlinedTextField(
                         value = weightState.value,
                         onValueChange = { weightState.value = it.filter { ch -> ch.isDigit() || ch == '.' } },
-                        label = { Text("Weight (kg)") },
+                        label = { Text("Weight (kg)", color = LabelBlue) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = LabelBlue,
+                            unfocusedBorderColor = Color(0xFF90A4AE),
+                        ),
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -95,7 +107,6 @@ private fun DiagnosisIndex(
 
         val filtered = if (query.isBlank()) diagnoses else diagnoses.filter {
             it.name.contains(query, ignoreCase = true) ||
-                it.arabicName.contains(query) ||
                 it.category.contains(query, ignoreCase = true)
         }
 
@@ -131,9 +142,9 @@ private fun DiagnosisIndex(
                                 fontSize = 15.sp,
                             )
                             Text(
-                                text = dx.arabicName,
-                                color = LabelBlue.copy(alpha = 0.85f),
-                                fontSize = 13.sp,
+                                text = dx.category,
+                                color = LabelBlue.copy(alpha = 0.7f),
+                                fontSize = 12.sp,
                             )
                         }
                     }
@@ -162,15 +173,10 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
         LazyColumn(modifier = Modifier.fillMaxSize().padding(inner).padding(horizontal = 12.dp)) {
             item {
                 Text(
-                    text = dx.arabicName,
-                    fontSize = 16.sp,
-                    color = LabelBlue,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                Text(
                     text = dx.category,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     color = LabelBlue.copy(alpha = 0.8f),
+                    modifier = Modifier.padding(top = 8.dp),
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(

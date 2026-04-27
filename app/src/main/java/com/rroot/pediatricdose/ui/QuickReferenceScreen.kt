@@ -1,12 +1,17 @@
 package com.rroot.pediatricdose.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,7 +41,6 @@ private val ValueText = Color(0xFFD32F2F)
 @Composable
 fun QuickReferenceScreen(weightState: MutableState<String>) {
     val weightKg = weightState.value.toDoubleOrNull() ?: 0.0
-    var showMaximums by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -64,7 +68,19 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                             weightState.value = v.filter { it.isDigit() || it == '.' }.take(6)
                         },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("weight (kg)") },
+                        placeholder = { Text("weight (kg)", color = Color(0xFF9E9E9E)) },
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = LabelText,
+                            unfocusedBorderColor = Color(0xFF90A4AE),
+                        ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                     )
@@ -77,12 +93,12 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                         Text("Calculate", color = Color.Black, fontWeight = FontWeight.Bold)
                     }
                 }
-                Spacer(Modifier.height(6.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Maximum dose", fontSize = 14.sp)
-                    Spacer(Modifier.weight(1f))
-                    Switch(checked = showMaximums, onCheckedChange = { showMaximums = it })
-                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Tap a drug to see vial / dilution / dose / time / max",
+                    fontSize = 11.sp,
+                    color = Color(0xFF607D8B),
+                )
             }
         }
 
@@ -92,7 +108,7 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                 drug.sectionHeader?.let { header ->
                     SectionHeader(header)
                 }
-                DrugRow(drug = drug, weightKg = weightKg, showMaximums = showMaximums)
+                DrugRow(drug = drug, weightKg = weightKg)
             }
             item {
                 Spacer(Modifier.height(24.dp))
@@ -130,7 +146,7 @@ private fun SectionHeader(text: String) {
 }
 
 @Composable
-private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
+private fun DrugRow(drug: PediDrug, weightKg: Double) {
     val computed: ComputedDose = QuickDose.compute(drug, weightKg)
     val bg = when (drug.accent) {
         Accent.Cyan -> Cyan
@@ -139,6 +155,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
         Accent.Red -> RedHighlight.copy(alpha = 0.18f)
         Accent.Plain -> Color.White
     }
+    var expanded by rememberSaveable(drug.id) { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -149,6 +166,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
                 .fillMaxWidth()
                 .background(bg, RoundedCornerShape(6.dp))
                 .border(1.dp, Color(0xFFBDBDBD), RoundedCornerShape(6.dp))
+                .clickable { expanded = !expanded }
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -175,43 +193,52 @@ private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
                     )
                 }
             }
-        }
-        // Secondary line: dose in mg or recipe
-        computed.secondary?.let { sec ->
-            Text(
-                text = sec,
-                fontSize = 11.sp,
-                color = Color(0xFF555555),
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp),
+            Spacer(Modifier.width(4.dp))
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = if (expanded) "Collapse" else "Expand",
+                tint = LabelText,
             )
         }
-        // Always-visible bedside recipe block for injectables
-        drug.injection?.let { inj ->
-            InjectionDetailBlock(inj)
-        }
-        if (showMaximums && drug.notes.isNotBlank()) {
-            Text(
-                text = drug.notes,
-                fontSize = 11.sp,
-                color = Color(0xFF424242),
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 8.dp),
-            )
-        }
-        if (showMaximums && drug.reference.isNotBlank()) {
-            Text(
-                text = "Ref: ${drug.reference}",
-                fontSize = 10.sp,
-                color = Color(0xFF607D8B),
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp),
-            )
-        }
-        if (computed.capped) {
-            Text(
-                text = "⚠ Capped at maximum recommended dose.",
-                fontSize = 11.sp,
-                color = Color(0xFFB71C1C),
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp),
-            )
+        AnimatedVisibility(visible = expanded) {
+            Column {
+                // Secondary line: dose in mg or recipe
+                computed.secondary?.let { sec ->
+                    Text(
+                        text = sec,
+                        fontSize = 11.sp,
+                        color = Color(0xFF555555),
+                        modifier = Modifier.padding(start = 12.dp, top = 2.dp),
+                    )
+                }
+                drug.injection?.let { inj ->
+                    InjectionDetailBlock(inj)
+                }
+                if (drug.notes.isNotBlank()) {
+                    Text(
+                        text = drug.notes,
+                        fontSize = 11.sp,
+                        color = Color(0xFF424242),
+                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 8.dp),
+                    )
+                }
+                if (drug.reference.isNotBlank()) {
+                    Text(
+                        text = "Ref: ${drug.reference}",
+                        fontSize = 10.sp,
+                        color = Color(0xFF607D8B),
+                        modifier = Modifier.padding(start = 12.dp, top = 2.dp),
+                    )
+                }
+                if (computed.capped) {
+                    Text(
+                        text = "⚠ Capped at maximum recommended dose.",
+                        fontSize = 11.sp,
+                        color = Color(0xFFB71C1C),
+                        modifier = Modifier.padding(start = 12.dp, top = 2.dp),
+                    )
+                }
+            }
         }
     }
 }

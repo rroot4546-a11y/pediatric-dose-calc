@@ -53,9 +53,21 @@ fun SyrupScreen(
                     OutlinedTextField(
                         value = weightState.value,
                         onValueChange = { weightState.value = it.filter { ch -> ch.isDigit() || ch == '.' } },
-                        label = { Text("Weight (kg)") },
+                        label = { Text("Weight (kg)", color = LabelBlue) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = LabelBlue,
+                            unfocusedBorderColor = Color(0xFF90A4AE),
+                        ),
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.width(12.dp))
