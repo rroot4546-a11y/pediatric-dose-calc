@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PediCalc AI launcher foreground:
+     a stylised paediatric medical cross + AI sparkle.
+     Designed for the 108×108 adaptive-icon canvas (66×66 safe zone). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Rounded medical cross (white, central) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M44,30 h20 a4,4 0 0 1 4,4 v10 h10 a4,4 0 0 1 4,4 v20 a4,4 0 0 1 -4,4 h-10 v10 a4,4 0 0 1 -4,4 h-20 a4,4 0 0 1 -4,-4 v-10 h-10 a4,4 0 0 1 -4,-4 v-20 a4,4 0 0 1 4,-4 h10 v-10 a4,4 0 0 1 4,-4 z" />
+
+    <!-- AI sparkle (top-right, gold) -->
+    <path
+        android:fillColor="#FFFFD54F"
+        android:pathData="M82,24 l3,7 7,3 -7,3 -3,7 -3,-7 -7,-3 7,-3 z" />
+    <path
+        android:fillColor="#FFFFD54F"
+        android:pathData="M92,40 l1.5,3.5 3.5,1.5 -3.5,1.5 -1.5,3.5 -1.5,-3.5 -3.5,-1.5 3.5,-1.5 z" />
+
+    <!-- Small drop (bottom-left, paediatric / dose hint, light cyan) -->
+    <path
+        android:fillColor="#FF80DEEA"
+        android:pathData="M28,82 c0,-6 8,-12 8,-12 c0,0 8,6 8,12 a8,8 0 0 1 -16,0 z" />
+</vector>
