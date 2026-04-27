@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rroot.pediatricdose.data.Accent
+import com.rroot.pediatricdose.data.InjectionDetail
 import com.rroot.pediatricdose.data.PediDrug
 import com.rroot.pediatricdose.data.PediDrugList
 import com.rroot.pediatricdose.domain.ComputedDose
@@ -184,12 +185,24 @@ private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
                 modifier = Modifier.padding(start = 12.dp, top = 2.dp),
             )
         }
+        // Always-visible bedside recipe block for injectables
+        drug.injection?.let { inj ->
+            InjectionDetailBlock(inj)
+        }
         if (showMaximums && drug.notes.isNotBlank()) {
             Text(
                 text = drug.notes,
                 fontSize = 11.sp,
                 color = Color(0xFF424242),
                 modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 8.dp),
+            )
+        }
+        if (showMaximums && drug.reference.isNotBlank()) {
+            Text(
+                text = "Ref: ${drug.reference}",
+                fontSize = 10.sp,
+                color = Color(0xFF607D8B),
+                modifier = Modifier.padding(start = 12.dp, top = 2.dp),
             )
         }
         if (computed.capped) {
@@ -200,5 +213,54 @@ private fun DrugRow(drug: PediDrug, weightKg: Double, showMaximums: Boolean) {
                 modifier = Modifier.padding(start = 12.dp, top = 2.dp),
             )
         }
+    }
+}
+
+@Composable
+private fun InjectionDetailBlock(inj: InjectionDetail) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .background(Color(0xFFF7FBFF), RoundedCornerShape(6.dp))
+            .border(1.dp, Color(0xFFCFD8DC), RoundedCornerShape(6.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+    ) {
+        DetailRow("Vial", inj.vial)
+        inj.reconstitute?.let { DetailRow("Reconstitute", it) }
+        inj.furtherDilute?.let { DetailRow("Dilute", it) }
+        DetailRow("Dose", inj.dose)
+        DetailRow("Frequency", inj.frequency)
+        DetailRow("Route", inj.route)
+        DetailRow("Time", inj.infusionTime)
+        inj.maxPerDose?.let { DetailRow("Max / dose", it) }
+        inj.maxPerDay?.let { DetailRow("Max / day", it) }
+        inj.cautions?.let {
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = "⚠ $it",
+                fontSize = 11.sp,
+                color = Color(0xFFB71C1C),
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(modifier = Modifier.padding(vertical = 1.dp)) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = LabelText,
+            modifier = Modifier.width(96.dp),
+        )
+        Text(
+            text = value,
+            fontSize = 11.sp,
+            color = Color(0xFF212121),
+            modifier = Modifier.weight(1f),
+        )
     }
 }

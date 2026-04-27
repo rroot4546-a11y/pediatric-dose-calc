@@ -30,6 +30,37 @@ data class PediDrug(
     val notes: String = "",
     val reference: String = "BNFc 2024 / UpToDate",
     val accent: Accent = Accent.Cyan,
+    /** When non-null, render a structured injection detail block under the row. */
+    val injection: InjectionDetail? = null,
+)
+
+/**
+ * Structured bedside information for an injectable, displayed under the row
+ * so that the user can read off the full recipe (vial → dilute → give → over).
+ *
+ * Every field is a short bedside string, BNFc-style.
+ */
+data class InjectionDetail(
+    /** Vial / ampoule label, e.g. "Vial 500 mg". */
+    val vial: String,
+    /** Reconstitution step, e.g. "+ 5 mL water for injection → 100 mg/mL". */
+    val reconstitute: String? = null,
+    /** Further dilution before giving, e.g. "Then add 50 mL N.S → 5 mg/mL". */
+    val furtherDilute: String? = null,
+    /** Dose per kg in mg or mcg, e.g. "50 mg/kg/dose". */
+    val dose: String,
+    /** Frequency, e.g. "every 6 h (× 4/day)". */
+    val frequency: String,
+    /** Route, e.g. "IV", "IM", "PR", "IO". */
+    val route: String,
+    /** Time period, e.g. "slow IV push over 3–5 min" or "infusion over 30 min". */
+    val infusionTime: String,
+    /** Max per single dose. */
+    val maxPerDose: String? = null,
+    /** Max per 24 h. */
+    val maxPerDay: String? = null,
+    /** Bedside cautions / monitoring. */
+    val cautions: String? = null,
 )
 
 enum class Accent { Cyan, Gray, Yellow, Red, Plain }
