@@ -21,10 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rroot.pediatricdose.ai.AiModels
 import com.rroot.pediatricdose.ai.SecureStore
+import com.rroot.pediatricdose.ui.theme.ThemePref
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(store: SecureStore) {
+fun SettingsScreen(
+    store: SecureStore,
+    themePref: ThemePref,
+    onThemePrefChange: (ThemePref) -> Unit,
+) {
     var token by rememberSaveable { mutableStateOf(store.openRouterToken.orEmpty()) }
     var modelId by rememberSaveable { mutableStateOf(store.modelId) }
     var revealed by rememberSaveable { mutableStateOf(false) }
@@ -37,15 +42,61 @@ fun SettingsScreen(store: SecureStore) {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        // -- Appearance ---------------------------------------------------
+        Text(
+            "Appearance",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Text(
+            "Choose the colour scheme. \"System\" follows your device's day / night setting.",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ThemePref.values().forEach { pref ->
+                val selected = pref == themePref
+                Surface(
+                    onClick = { onThemePrefChange(pref) },
+                    modifier = Modifier.weight(1f),
+                    shape = MaterialTheme.shapes.medium,
+                    color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = pref.name,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                        )
+                    }
+                }
+            }
+        }
+
+        Divider(Modifier.padding(vertical = 4.dp))
+
+        // -- AI -----------------------------------------------------------
         Text(
             "AI Assistant — OpenRouter",
-            fontSize = 20.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
             "PediCalc can answer free-text clinical questions about a child by routing them through OpenRouter (https://openrouter.ai). Your API token is stored encrypted on this device only and is sent solely to api.openrouter.ai.",
             fontSize = 13.sp,
-            color = Color(0xFF555555),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         OutlinedTextField(
@@ -70,7 +121,7 @@ fun SettingsScreen(store: SecureStore) {
         Text(
             "Get a token from https://openrouter.ai/keys (free tier available).",
             fontSize = 11.sp,
-            color = Color(0xFF777777),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(Modifier.height(8.dp))
@@ -95,7 +146,7 @@ fun SettingsScreen(store: SecureStore) {
                         Text(
                             text = "${m.id} — ${m.tag}",
                             fontSize = 11.sp,
-                            color = Color(0xFF555555),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -130,7 +181,7 @@ fun SettingsScreen(store: SecureStore) {
             }
             Text(
                 "Saved ✓",
-                color = Color(0xFF2E7D32),
+                color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -144,7 +195,14 @@ fun SettingsScreen(store: SecureStore) {
         Text(
             "PediCalc AI is a decision-support tool. The final dose, dilution and route are the prescribing physician's responsibility. AI replies can be wrong — verify with the BNFc and local protocols.",
             fontSize = 12.sp,
-            color = Color(0xFF555555),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Designed by Salah Ahmod  ·  Internal Medicine Resident  ·  Instagram @salah_ahmod",
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

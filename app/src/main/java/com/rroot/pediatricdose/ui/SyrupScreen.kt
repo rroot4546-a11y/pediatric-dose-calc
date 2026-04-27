@@ -11,25 +11,17 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rroot.pediatricdose.data.Accent
-import com.rroot.pediatricdose.data.AgeBand
 import com.rroot.pediatricdose.data.DoseMode
 import com.rroot.pediatricdose.data.PediDrug
 import com.rroot.pediatricdose.data.PediSyrupList
 import com.rroot.pediatricdose.domain.QuickDose
-
-private val LabelBlue = Color(0xFF0D47A1)
-private val ValueRed = Color(0xFFD32F2F)
-private val Cyan = Color(0xFFB2EBF2)
-private val Yellow = Color(0xFFFFF59D)
-private val Gray = Color(0xFFE0E0E0)
+import com.rroot.pediatricdose.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,26 +45,26 @@ fun SyrupScreen(
                     OutlinedTextField(
                         value = weightState.value,
                         onValueChange = { weightState.value = it.filter { ch -> ch.isDigit() || ch == '.' } },
-                        label = { Text("Weight (kg)", color = LabelBlue) },
+                        label = { Text("Weight (kg)", color = MaterialTheme.colorScheme.primary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         textStyle = androidx.compose.ui.text.TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            cursorColor = Color.Black,
-                            focusedBorderColor = LabelBlue,
-                            unfocusedBorderColor = Color(0xFF90A4AE),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = AppColors.border,
                         ),
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.width(12.dp))
                     Surface(
-                        color = Yellow,
+                        color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.height(56.dp).widthIn(min = 90.dp),
                     ) {
@@ -80,7 +72,11 @@ fun SyrupScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text("Calculate", fontWeight = FontWeight.Bold, color = LabelBlue)
+                            Text(
+                                "Calculate",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
                         }
                     }
                 }
@@ -119,7 +115,7 @@ fun SyrupScreen(
 @Composable
 private fun SectionHeader(label: String) {
     Surface(
-        color = LabelBlue.copy(alpha = 0.1f),
+        color = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
         shape = RoundedCornerShape(6.dp),
     ) {
@@ -127,7 +123,7 @@ private fun SectionHeader(label: String) {
             text = label,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             style = MaterialTheme.typography.titleSmall,
-            color = LabelBlue,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -135,11 +131,12 @@ private fun SectionHeader(label: String) {
 
 @Composable
 private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
+    val palette = AppColors
     val accent = when (drug.accent) {
-        Accent.Cyan -> Cyan
-        Accent.Yellow -> Yellow
-        Accent.Gray -> Gray
-        Accent.Red -> Color(0xFFEF5350)
+        Accent.Cyan -> palette.accentCyan
+        Accent.Yellow -> palette.accentYellow
+        Accent.Gray -> palette.accentGray
+        Accent.Red -> palette.accentRed
         Accent.Plain -> MaterialTheme.colorScheme.surface
     }
     Surface(
@@ -152,7 +149,7 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                 text = drug.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = LabelBlue,
+                color = palette.label,
             )
             when (val mode = drug.mode) {
                 is DoseMode.WeightBasedSyrup -> {
@@ -164,18 +161,18 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                                 text = p.prepLabel,
                                 modifier = Modifier.weight(1f),
                                 fontSize = 14.sp,
-                                color = LabelBlue,
+                                color = palette.label,
                             )
                             Text(
                                 text = p.cc,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (row.capped) ValueRed else ValueRed,
+                                color = if (row.capped) palette.warn else palette.value,
                             )
                             Text(
                                 text = " cc  ${row.frequency}",
                                 fontSize = 13.sp,
-                                color = LabelBlue,
+                                color = palette.label,
                             )
                         }
                     }
@@ -183,7 +180,7 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                         Text(
                             text = row.mgPerDose + if (row.capped) "  (capped)" else "",
                             fontSize = 12.sp,
-                            color = if (row.capped) ValueRed else LabelBlue.copy(alpha = 0.8f),
+                            color = if (row.capped) palette.warn else palette.label.copy(alpha = 0.85f),
                         )
                     }
                 }
@@ -192,7 +189,7 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                 }
                 else -> {
                     val r = QuickDose.compute(drug, weightKg)
-                    Text(text = "${r.primary}  ${r.frequency}", fontSize = 14.sp, color = ValueRed)
+                    Text(text = "${r.primary}  ${r.frequency}", fontSize = 14.sp, color = palette.value)
                 }
             }
             if (showDetails && drug.notes.isNotBlank()) {
@@ -200,12 +197,12 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
                 Text(
                     text = drug.notes,
                     fontSize = 12.sp,
-                    color = LabelBlue.copy(alpha = 0.85f),
+                    color = palette.label.copy(alpha = 0.9f),
                 )
                 Text(
                     text = "Reference: ${drug.reference}",
                     fontSize = 11.sp,
-                    color = LabelBlue.copy(alpha = 0.7f),
+                    color = palette.mutedText,
                 )
             }
         }
@@ -214,9 +211,10 @@ private fun SyrupRow(drug: PediDrug, weightKg: Double, showDetails: Boolean) {
 
 @Composable
 private fun AgeBandedRows(mode: DoseMode.AgeBanded) {
+    val palette = AppColors
     Spacer(Modifier.height(4.dp))
     Surface(
-        color = Color.White.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -227,18 +225,18 @@ private fun AgeBandedRows(mode: DoseMode.AgeBanded) {
                         text = band.label,
                         modifier = Modifier.weight(1f),
                         fontSize = 13.sp,
-                        color = LabelBlue,
+                        color = palette.label,
                     )
                     Text(
                         text = QuickDose.formatCc(band.cc),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ValueRed,
+                        color = palette.value,
                     )
                     Text(
                         text = " cc  ${band.frequency}",
                         fontSize = 12.sp,
-                        color = LabelBlue,
+                        color = palette.label,
                     )
                 }
             }

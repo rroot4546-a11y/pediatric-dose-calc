@@ -29,28 +29,23 @@ import com.rroot.pediatricdose.data.PediDrug
 import com.rroot.pediatricdose.data.PediDrugList
 import com.rroot.pediatricdose.domain.ComputedDose
 import com.rroot.pediatricdose.domain.QuickDose
-
-private val Cyan = Color(0xFFB2EBF2)
-private val Yellow = Color(0xFFFFF59D)
-private val GrayBand = Color(0xFFE0E0E0)
-private val RedHighlight = Color(0xFFEF5350)
-private val LabelText = Color(0xFF0D47A1)
-private val ValueText = Color(0xFFD32F2F)
+import com.rroot.pediatricdose.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickReferenceScreen(weightState: MutableState<String>) {
     val weightKg = weightState.value.toDoubleOrNull() ?: 0.0
+    val palette = AppColors
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // Sticky header: weight input + max-dose toggle
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 2.dp,
         ) {
             Column(
@@ -68,18 +63,18 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                             weightState.value = v.filter { it.isDigit() || it == '.' }.take(6)
                         },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("weight (kg)", color = Color(0xFF9E9E9E)) },
+                        placeholder = { Text("weight (kg)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         textStyle = androidx.compose.ui.text.TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            cursorColor = Color.Black,
-                            focusedBorderColor = LabelText,
-                            unfocusedBorderColor = Color(0xFF90A4AE),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = palette.border,
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
@@ -87,17 +82,20 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                     Spacer(Modifier.width(10.dp))
                     Button(
                         onClick = { /* recomputation is automatic */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                         shape = RoundedCornerShape(8.dp),
                     ) {
-                        Text("Calculate", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text("Calculate", fontWeight = FontWeight.Bold)
                     }
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "Tap a drug to see vial / dilution / dose / time / max",
                     fontSize = 11.sp,
-                    color = Color(0xFF607D8B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -115,10 +113,19 @@ fun QuickReferenceScreen(weightState: MutableState<String>) {
                 Text(
                     text = "Reference values aligned with BNFc 2024 / Nelson's Pediatrics 22e. Always verify the prescription with the responsible physician.",
                     fontSize = 11.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 12.dp),
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = "PediCalc AI · Designed by Salah Ahmod, Internal Medicine Resident · Instagram @salah_ahmod",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(24.dp))
@@ -133,14 +140,14 @@ private fun SectionHeader(text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 14.dp, bottom = 4.dp)
-            .background(Color(0xFFF5F5F5))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 16.dp, vertical = 6.dp),
     ) {
         Text(
             text = text,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF424242),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -148,12 +155,13 @@ private fun SectionHeader(text: String) {
 @Composable
 private fun DrugRow(drug: PediDrug, weightKg: Double) {
     val computed: ComputedDose = QuickDose.compute(drug, weightKg)
+    val palette = AppColors
     val bg = when (drug.accent) {
-        Accent.Cyan -> Cyan
-        Accent.Yellow -> Yellow
-        Accent.Gray -> GrayBand
-        Accent.Red -> RedHighlight.copy(alpha = 0.18f)
-        Accent.Plain -> Color.White
+        Accent.Cyan -> palette.accentCyan
+        Accent.Yellow -> palette.accentYellow
+        Accent.Gray -> palette.accentGray
+        Accent.Red -> palette.accentRed
+        Accent.Plain -> MaterialTheme.colorScheme.surface
     }
     var expanded by rememberSaveable(drug.id) { mutableStateOf(false) }
     Column(
@@ -165,7 +173,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(bg, RoundedCornerShape(6.dp))
-                .border(1.dp, Color(0xFFBDBDBD), RoundedCornerShape(6.dp))
+                .border(1.dp, palette.border, RoundedCornerShape(6.dp))
                 .clickable { expanded = !expanded }
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -175,21 +183,21 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                 modifier = Modifier.weight(1f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = LabelText,
+                color = palette.label,
             )
             Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = computed.primary,
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (computed.capped) Color(0xFFB71C1C) else ValueText,
+                    color = if (computed.capped) palette.warn else palette.value,
                     fontSize = 14.sp,
                 )
                 if (computed.frequency.isNotBlank()) {
                     Text(
                         text = computed.frequency,
                         fontSize = 11.sp,
-                        color = Color(0xFF424242),
+                        color = palette.secondaryText,
                     )
                 }
             }
@@ -197,7 +205,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = if (expanded) "Collapse" else "Expand",
-                tint = LabelText,
+                tint = palette.label,
             )
         }
         AnimatedVisibility(visible = expanded) {
@@ -207,7 +215,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                     Text(
                         text = sec,
                         fontSize = 11.sp,
-                        color = Color(0xFF555555),
+                        color = palette.secondaryText,
                         modifier = Modifier.padding(start = 12.dp, top = 2.dp),
                     )
                 }
@@ -218,7 +226,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                     Text(
                         text = drug.notes,
                         fontSize = 11.sp,
-                        color = Color(0xFF424242),
+                        color = palette.secondaryText,
                         modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 8.dp),
                     )
                 }
@@ -226,7 +234,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                     Text(
                         text = "Ref: ${drug.reference}",
                         fontSize = 10.sp,
-                        color = Color(0xFF607D8B),
+                        color = palette.mutedText,
                         modifier = Modifier.padding(start = 12.dp, top = 2.dp),
                     )
                 }
@@ -234,7 +242,7 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
                     Text(
                         text = "⚠ Capped at maximum recommended dose.",
                         fontSize = 11.sp,
-                        color = Color(0xFFB71C1C),
+                        color = palette.warn,
                         modifier = Modifier.padding(start = 12.dp, top = 2.dp),
                     )
                 }
@@ -245,12 +253,13 @@ private fun DrugRow(drug: PediDrug, weightKg: Double) {
 
 @Composable
 private fun InjectionDetailBlock(inj: InjectionDetail) {
+    val palette = AppColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .background(Color(0xFFF7FBFF), RoundedCornerShape(6.dp))
-            .border(1.dp, Color(0xFFCFD8DC), RoundedCornerShape(6.dp))
+            .background(palette.cardBg, RoundedCornerShape(6.dp))
+            .border(1.dp, palette.border, RoundedCornerShape(6.dp))
             .padding(horizontal = 10.dp, vertical = 8.dp),
     ) {
         DetailRow("Vial", inj.vial)
@@ -267,7 +276,7 @@ private fun InjectionDetailBlock(inj: InjectionDetail) {
             Text(
                 text = "⚠ $it",
                 fontSize = 11.sp,
-                color = Color(0xFFB71C1C),
+                color = palette.warn,
             )
         }
     }
@@ -275,18 +284,19 @@ private fun InjectionDetailBlock(inj: InjectionDetail) {
 
 @Composable
 private fun DetailRow(label: String, value: String) {
+    val palette = AppColors
     Row(modifier = Modifier.padding(vertical = 1.dp)) {
         Text(
             text = label,
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
-            color = LabelText,
+            color = palette.label,
             modifier = Modifier.width(96.dp),
         )
         Text(
             text = value,
             fontSize = 11.sp,
-            color = Color(0xFF212121),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
     }

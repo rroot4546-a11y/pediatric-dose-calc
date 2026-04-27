@@ -43,10 +43,19 @@ class SecureStore(context: Context) {
             prefs.edit().putString(KEY_MODEL, value).apply()
         }
 
+    /** "system" / "light" / "dark". Defaults to system. */
+    var themePref: String
+        get() = prefs.getString(KEY_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
+        set(value) {
+            prefs.edit().putString(KEY_THEME, value).apply()
+        }
+
     companion object {
         private const val FILE_NAME = "pedicalc_secure"
         private const val KEY_TOKEN = "openrouter_token"
         private const val KEY_MODEL = "openrouter_model"
+        private const val KEY_THEME = "theme_pref"
         const val DEFAULT_MODEL = "google/gemini-2.0-flash-001"
+        const val DEFAULT_THEME = "system"
     }
 }

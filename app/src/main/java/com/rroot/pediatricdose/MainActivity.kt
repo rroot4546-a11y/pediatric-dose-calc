@@ -34,6 +34,7 @@ import com.rroot.pediatricdose.ui.QuickReferenceScreen
 import com.rroot.pediatricdose.ui.SettingsScreen
 import com.rroot.pediatricdose.ui.SyrupScreen
 import com.rroot.pediatricdose.ui.theme.PediatricDoseTheme
+import com.rroot.pediatricdose.ui.theme.ThemePref
 
 class MainActivity : ComponentActivity() {
 
@@ -45,18 +46,36 @@ class MainActivity : ComponentActivity() {
         secureStore = SecureStore(applicationContext)
 
         setContent {
-            PediatricDoseTheme {
+            // Track the user's theme preference here so the whole app
+            // recomposes when it changes inside Settings.
+            var themePref by rememberSaveable {
+                mutableStateOf(parseThemePref(secureStore.themePref))
+            }
+            PediatricDoseTheme(themePref = themePref) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     var showSplash by remember { mutableStateOf(true) }
                     if (showSplash) {
                         PediCalcSplash(onFinished = { showSplash = false })
                     } else {
-                        AppShell(secureStore)
+                        AppShell(
+                            store = secureStore,
+                            themePref = themePref,
+                            onThemePrefChange = {
+                                themePref = it
+                                secureStore.themePref = it.name.lowercase()
+                            },
+                        )
                     }
                 }
             }
         }
     }
+}
+
+private fun parseThemePref(raw: String): ThemePref = when (raw.lowercase()) {
+    "light" -> ThemePref.Light
+    "dark" -> ThemePref.Dark
+    else -> ThemePref.System
 }
 
 private enum class Tab(val title: String) {
@@ -68,7 +87,11 @@ private enum class Tab(val title: String) {
 }
 
 @Composable
-private fun AppShell(store: SecureStore) {
+private fun AppShell(
+    store: SecureStore,
+    themePref: ThemePref,
+    onThemePrefChange: (ThemePref) -> Unit,
+) {
     var selected by rememberSaveable { mutableStateOf(Tab.Diagnoses) }
     // Hoisted so that switching tabs preserves the typed weight.
     val weight = rememberSaveable { mutableStateOf("") }
@@ -123,7 +146,11 @@ private fun AppShell(store: SecureStore) {
                     store = store,
                     weightProvider = { weight.value.toDoubleOrNull() ?: 0.0 },
                 )
-                Tab.Settings -> SettingsScreen(store)
+                Tab.Settings -> SettingsScreen(
+                    store = store,
+                    themePref = themePref,
+                    onThemePrefChange = onThemePrefChange,
+                )
             }
         }
     }

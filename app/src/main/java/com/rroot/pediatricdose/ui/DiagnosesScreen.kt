@@ -1,6 +1,5 @@
 package com.rroot.pediatricdose.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,10 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rroot.pediatricdose.data.Diagnosis
@@ -28,10 +25,7 @@ import com.rroot.pediatricdose.data.PediDrugList
 import com.rroot.pediatricdose.data.PediSyrupList
 import com.rroot.pediatricdose.data.TreatmentOption
 import com.rroot.pediatricdose.domain.QuickDose
-
-private val LabelBlue = Color(0xFF0D47A1)
-private val ValueRed = Color(0xFFD32F2F)
-private val Cyan = Color(0xFFB2EBF2)
+import com.rroot.pediatricdose.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,20 +70,20 @@ private fun DiagnosisIndex(
                     OutlinedTextField(
                         value = weightState.value,
                         onValueChange = { weightState.value = it.filter { ch -> ch.isDigit() || ch == '.' } },
-                        label = { Text("Weight (kg)", color = LabelBlue) },
+                        label = { Text("Weight (kg)", color = MaterialTheme.colorScheme.primary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         textStyle = androidx.compose.ui.text.TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            cursorColor = Color.Black,
-                            focusedBorderColor = LabelBlue,
-                            unfocusedBorderColor = Color(0xFF90A4AE),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = AppColors.border,
                         ),
                         modifier = Modifier.weight(1f),
                     )
@@ -115,7 +109,7 @@ private fun DiagnosisIndex(
             for ((cat, group) in byCategory) {
                 item {
                     Surface(
-                        color = LabelBlue.copy(alpha = 0.1f),
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
                         shape = RoundedCornerShape(6.dp),
                     ) {
@@ -123,14 +117,14 @@ private fun DiagnosisIndex(
                             text = cat,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.titleSmall,
-                            color = LabelBlue,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontWeight = FontWeight.Bold,
                         )
                     }
                 }
                 items(group, key = { it.id }) { dx ->
                     Surface(
-                        color = Cyan,
+                        color = AppColors.accentCyan,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp).clickable { onSelect(dx) },
                     ) {
@@ -138,12 +132,12 @@ private fun DiagnosisIndex(
                             Text(
                                 text = dx.name,
                                 fontWeight = FontWeight.Bold,
-                                color = LabelBlue,
+                                color = AppColors.label,
                                 fontSize = 15.sp,
                             )
                             Text(
                                 text = dx.category,
-                                color = LabelBlue.copy(alpha = 0.7f),
+                                color = AppColors.label.copy(alpha = 0.75f),
                                 fontSize = 12.sp,
                             )
                         }
@@ -175,21 +169,25 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
                 Text(
                     text = dx.category,
                     fontSize = 13.sp,
-                    color = LabelBlue.copy(alpha = 0.8f),
+                    color = AppColors.label.copy(alpha = 0.85f),
                     modifier = Modifier.padding(top = 8.dp),
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = "Approach",
                     fontWeight = FontWeight.Bold,
-                    color = LabelBlue,
+                    color = AppColors.label,
                 )
-                Text(text = dx.notes, fontSize = 14.sp)
+                Text(
+                    text = dx.notes,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
                 Spacer(Modifier.height(12.dp))
 
                 if (dx.redFlags.isNotEmpty()) {
                     Surface(
-                        color = Color(0xFFFFEBEE),
+                        color = AppColors.accentRed,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -197,10 +195,10 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
                             Text(
                                 text = "Red flags",
                                 fontWeight = FontWeight.Bold,
-                                color = ValueRed,
+                                color = AppColors.warn,
                             )
                             for (f in dx.redFlags) {
-                                Text(text = "• $f", color = ValueRed, fontSize = 13.sp)
+                                Text(text = "• $f", color = AppColors.warn, fontSize = 13.sp)
                             }
                         }
                     }
@@ -210,7 +208,7 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
                 Text(
                     text = "First-line treatment options",
                     fontWeight = FontWeight.Bold,
-                    color = LabelBlue,
+                    color = AppColors.label,
                 )
             }
 
@@ -223,7 +221,7 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
                 Text(
                     text = "Reference: ${dx.reference}",
                     fontSize = 12.sp,
-                    color = LabelBlue.copy(alpha = 0.8f),
+                    color = AppColors.mutedText,
                 )
                 Spacer(Modifier.height(40.dp))
             }
@@ -233,12 +231,13 @@ private fun DiagnosisDetail(dx: Diagnosis, weightKg: Double, onBack: () -> Unit)
 
 @Composable
 private fun TreatmentRow(opt: TreatmentOption, weightKg: Double) {
+    val palette = AppColors
     val drug: PediDrug? = remember(opt.drugId) {
         PediSyrupList.all.firstOrNull { it.id == opt.drugId }
             ?: PediDrugList.all.firstOrNull { it.id == opt.drugId }
     }
     Surface(
-        color = Cyan,
+        color = palette.accentCyan,
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
     ) {
@@ -247,7 +246,7 @@ private fun TreatmentRow(opt: TreatmentOption, weightKg: Double) {
                 Text(
                     text = drug?.name ?: opt.drugId,
                     fontWeight = FontWeight.Bold,
-                    color = LabelBlue,
+                    color = palette.label,
                     modifier = Modifier.weight(1f),
                 )
                 AssistChip(label = opt.route)
@@ -260,11 +259,15 @@ private fun TreatmentRow(opt: TreatmentOption, weightKg: Double) {
             if (drug != null) {
                 renderDoseSummary(drug = drug, weightKg = weightKg)
             } else {
-                Text("Drug definition missing.", color = ValueRed)
+                Text("Drug definition missing.", color = palette.warn)
             }
             if (opt.noteForThisDiagnosis.isNotBlank()) {
                 Spacer(Modifier.height(4.dp))
-                Text(opt.noteForThisDiagnosis, fontSize = 12.sp, color = LabelBlue.copy(alpha = 0.85f))
+                Text(
+                    opt.noteForThisDiagnosis,
+                    fontSize = 12.sp,
+                    color = palette.label.copy(alpha = 0.9f),
+                )
             }
         }
     }
@@ -273,7 +276,7 @@ private fun TreatmentRow(opt: TreatmentOption, weightKg: Double) {
 @Composable
 private fun AssistChip(label: String) {
     Surface(
-        color = LabelBlue.copy(alpha = 0.12f),
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shape = RoundedCornerShape(50),
     ) {
         Text(
@@ -281,13 +284,14 @@ private fun AssistChip(label: String) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            color = LabelBlue,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
         )
     }
 }
 
 @Composable
 private fun renderDoseSummary(drug: PediDrug, weightKg: Double) {
+    val palette = AppColors
     when (val mode = drug.mode) {
         is DoseMode.WeightBasedSyrup -> {
             val row = QuickDose.computeSyrup(mode, weightKg)
@@ -297,18 +301,22 @@ private fun renderDoseSummary(drug: PediDrug, weightKg: Double) {
                         text = p.prepLabel,
                         modifier = Modifier.weight(1f),
                         fontSize = 13.sp,
-                        color = LabelBlue,
+                        color = palette.label,
                     )
                     Text(
                         text = "${p.cc} cc  ${row.frequency}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ValueRed,
+                        color = if (row.capped) palette.warn else palette.value,
                     )
                 }
             }
             if (row.mgPerDose.isNotBlank()) {
-                Text(row.mgPerDose, fontSize = 11.sp, color = LabelBlue.copy(alpha = 0.8f))
+                Text(
+                    row.mgPerDose,
+                    fontSize = 11.sp,
+                    color = palette.label.copy(alpha = 0.85f),
+                )
             }
         }
         is DoseMode.AgeBanded -> {
@@ -318,13 +326,13 @@ private fun renderDoseSummary(drug: PediDrug, weightKg: Double) {
                         text = band.label,
                         modifier = Modifier.weight(1f),
                         fontSize = 13.sp,
-                        color = LabelBlue,
+                        color = palette.label,
                     )
                     Text(
                         text = "${QuickDose.formatCc(band.cc)} cc  ${band.frequency}",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ValueRed,
+                        color = palette.value,
                     )
                 }
             }
@@ -336,13 +344,17 @@ private fun renderDoseSummary(drug: PediDrug, weightKg: Double) {
                     text = r.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = if (r.capped) ValueRed else ValueRed,
+                    color = if (r.capped) palette.warn else palette.value,
                 )
                 Spacer(Modifier.width(6.dp))
-                Text(text = r.frequency, fontSize = 13.sp, color = LabelBlue)
+                Text(text = r.frequency, fontSize = 13.sp, color = palette.label)
             }
             r.secondary?.let {
-                Text(it, fontSize = 11.sp, color = LabelBlue.copy(alpha = 0.85f))
+                Text(
+                    it,
+                    fontSize = 11.sp,
+                    color = palette.label.copy(alpha = 0.9f),
+                )
             }
         }
     }
